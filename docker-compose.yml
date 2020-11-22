@@ -1,0 +1,10 @@
+version: "3.8"
+services:
+    scraper:
+        image: newspaper-scraper:latest
+        container_name: "newspaper-scraper"
+        build:
+            context: .
+            dockerfile: ./docker/ScraperDockerfile
+        volumes:
+            - "./data:/data:rw"
