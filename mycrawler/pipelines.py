@@ -6,6 +6,45 @@
 # See: https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 
 
+import json
+from scrapy.exporters import JsonItemExporter
+from itemadapter import ItemAdapter
+from scrapy.exceptions import DropItem
+
+
 class MycrawlerPipeline(object):
     def process_item(self, item, spider):
+        return item
+
+
+class JsonWriterPipeline:
+
+    # def open_spider(self, spider):
+    #     self.file = open('data/items/items.json', 'wb')
+    #     self.file.write("[")
+
+    # def close_spider(self, spider):
+    #     self.file.write("]")
+    #     self.file.close()
+
+    # def process_item(self, item, spider):
+    #     line = json.dumps(
+    #         dict(item),
+    #         sort_keys=True,
+    #         indent=4,
+    #         separators=(',', ': ')
+    #     ) + ",\n"
+
+    #     self.file.write(line)
+    #     return item
+
+    def open_spider(self, spider):
+        self.file = open('data/items/items.jsonl', 'w')
+
+    def close_spider(self, spider):
+        self.file.close()
+
+    def process_item(self, item, spider):
+        line = json.dumps(ItemAdapter(item).asdict()) + "\n"
+        self.file.write(line)
         return item
