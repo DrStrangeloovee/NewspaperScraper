@@ -6,7 +6,7 @@
 # See: https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 
 
-from mycrawler.items import StoryItem, CommentItem
+from mycrawler.items import StoryItem, PostingItem
 import json
 from scrapy.exporters import JsonItemExporter
 from itemadapter import ItemAdapter
@@ -41,18 +41,18 @@ class JsonWriterPipeline:
 
     def open_spider(self, spider):
         self.story_items_file = open('data/items/story_items.jsonl', 'w')
-        self.comment_items_file = open('data/items/comment_items.jsonl', 'w')
+        self.posting_items_file = open('data/items/posting_items.jsonl', 'w')
 
     def close_spider(self, spider):
         self.story_items_file.close()
-        self.comment_items_file.close()
+        self.posting_items_file.close()
 
     def process_item(self, item, spider):
         if isinstance(item, StoryItem):
             line = json.dumps(ItemAdapter(item).asdict()) + "\n"
             self.story_items_file.write(line)
             return item
-        if isinstance(item, CommentItem):
+        if isinstance(item, PostingItem):
             line = json.dumps(ItemAdapter(item).asdict()) + "\n"
-            self.comment_items_file.write(line)
+            self.posting_items_file.write(line)
             return item
