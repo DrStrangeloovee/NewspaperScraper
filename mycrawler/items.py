@@ -73,6 +73,7 @@ class StoryItem(Item):
 class PostingItem(Item):
     # TODO: sticky comment/from employee --> https://www.derstandard.at/story/2000122058320/wie-familien-trotz-corona-weihnachten-retten-koennen
     posting_story_id = Field()
+    posting_page_number = Field()
     # posting_community_name = Field()
     # posting_url = Field()
     # posting_real_id = Field()
