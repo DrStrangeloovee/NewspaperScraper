@@ -1,4 +1,4 @@
-from mycrawler.items import StoryItem, CommentItem
+from mycrawler.items import StoryItem, PostingItem
 import datetime
 from scrapy.spiders import SitemapSpider
 from scrapy.http import Request
@@ -65,10 +65,10 @@ class DerStandardCrawler(SitemapSpider):
             'store_file', response.url.split('/')[-2] + '.html')
 
         # TODO: maybe create a function for this
-        # page = story_item_loader.get_output_value('story_id')[0]
-        # filename = f'{page}.html'
-        # with open('data/' + self.name + '/' + filename, 'wb') as f:
-        #     f.write(response.body)
+        story_page_id = story_item_loader.get_output_value('story_id')
+        filename = f'{story_page_id}.html'
+        with open('data/' + self.name + '/' + filename, 'wb') as f:
+            f.write(response.body)
         self.logger.info('crawled page %s', response.url)
 
         story_item = story_item_loader.load_item()
@@ -76,31 +76,84 @@ class DerStandardCrawler(SitemapSpider):
         if story_item.get('story_posting_count'):
             self.logger.info('found %s comments',
                              story_item.get('story_posting_count'))
-            comment_request = Request(
-                url='https://apps.derstandard.at/forum/postings/Index/1/' + str(story_item.get('story_id')) + '?ForumKey.ForumKeyId=' + str(story_item.get('story_id')) + '&ForumKey.ForumKeyType=1&CurrentPage=2&Filter.SelectedFilterType=0&SelectedSortType=0&SelectedPostingId=&X-Requested-With=XMLHttpRequest', method='GET', headers={
-                    'Accept': '*/*',
-                    'Accept-Language': 'en-US,en;q=0.5',
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Origin': 'https://www.derstandard.at',
-                    'Connection': 'keep-alive',
-                    'Referer': response.url,
-                    'Pragma': 'no-cache',
-                    'Cache-Control': 'no-cache'
-                }, callback=self.parse_comments)
-            yield comment_request
+
+            story_posting_pages = calculate_story_posting_pages(
+                story_item.get('story_posting_count'))
+
+            for page_number in range(1, story_posting_pages + 1):
+                story_posting_next_page_url = 'https://apps.derstandard.at/forum/postings/Index/1/' + str(story_item.get('story_id')) + '?ForumKey.ForumKeyId=' + str(story_item.get(
+                    'story_id')) + '&ForumKey.ForumKeyType=1&CurrentPage=' + str(page_number) + '&Filter.SelectedFilterType=0&SelectedSortType=0&SelectedPostingId=&X-Requested-With=XMLHttpRequest'
+                yield response.follow(url=story_posting_next_page_url,
+                                      headers={
+                                          'Accept': '*/*',
+                                          'Accept-Language': 'en-US,en;q=0.5',
+                                          'X-Requested-With': 'XMLHttpRequest',
+                                          'Origin': 'https://www.derstandard.at',
+                                          'Connection': 'keep-alive',
+                                          'Referer': response.url,
+                                          'Pragma': 'no-cache',
+                                          'Cache-Control': 'no-cache'
+                                      },
+                                      callback=self.parse_postings,
+                                      cb_kwargs=dict(posting_story_id=response.url, posting_page_number=page_number))
+
+                # TODO: create list of posting pages, iterate over it and yield each item
+                # https://docs.scrapy.org/en/latest/topics/spiders.html#sitemapspider-examples <-- last example on the bottom
+                # self.logger.info('fetching %s/' + str(story_posting_pages + 1) + ' of posting pages',
+                #                  story_posting_current_page)
+                # story_posting_next_page_url = 'https://apps.derstandard.at/forum/postings/Index/1/' + str(story_item.get('story_id')) + '?ForumKey.ForumKeyId=' + str(story_item.get(
+                #     'story_id')) + '&ForumKey.ForumKeyType=1&CurrentPage=' + str(story_posting_current_page) + '&Filter.SelectedFilterType=0&SelectedSortType=0&SelectedPostingId=&X-Requested-With=XMLHttpRequest'
+                # yield response.follow(url=story_posting_next_page_url, headers={
+                #     'Accept': '*/*',
+                #     'Accept-Language': 'en-US,en;q=0.5',
+                #     'X-Requested-With': 'XMLHttpRequest',
+                #     'Origin': 'https://www.derstandard.at',
+                #     'Connection': 'keep-alive',
+                #     'Referer': response.url,
+                #     'Pragma': 'no-cache',
+                #     'Cache-Control': 'no-cache'
+                # }, callback=self.parse_postings, cb_kwargs=dict(posting_story_id=response.url))
+                # TODO: calculate total posting pages --> story_posting_count/25
+                # posting_page_request = Request(
+                #     url='https://apps.derstandard.at/forum/postings/Index/1/' + str(story_item.get('story_id')) + '?ForumKey.ForumKeyId=' + str(story_item.get('story_id')) + '&ForumKey.ForumKeyType=1&CurrentPage=' + str(story_posting_current_page) + '&Filter.SelectedFilterType=0&SelectedSortType=0&SelectedPostingId=&X-Requested-With=XMLHttpRequest', method='GET', headers={
+                #         'Accept': '*/*',
+                #         'Accept-Language': 'en-US,en;q=0.5',
+                #         'X-Requested-With': 'XMLHttpRequest',
+                #         'Origin': 'https://www.derstandard.at',
+                #         'Connection': 'keep-alive',
+                #         'Referer': response.url,
+                #         'Pragma': 'no-cache',
+                #         'Cache-Control': 'no-cache'
+                #     }, callback=self.parse_postings, cb_kwargs=dict(posting_story_id=response.url))
+                # self.logger.info('request url %s', posting_page_request.url)
+                # yield posting_page_request
+                # story_posting_current_page = story_posting_current_page + 1
+                # self.logger.info('parsing comment page ' + str(story_posting_current_page) + '/' + str(story_posting_pages))
         else:
             self.logger.info('no comments found %s', response.url)
-        # self.logger.info('created item %s', story_item)
+
         yield story_item
 
-    def parse_comments(self, response):
-        self.logger.info('comment reponse %s', response.url)
-        comment_item_loader = ItemLoader(item=CommentItem(), response=response)
-        comment_item_loader.add_xpath(
-            'comment_content', '//div[@id="postinglist"]')
-        comment_item = comment_item_loader.load_item()
+    """TODO: Calculates the total pages of comments to parse with each page containing 25 comments.
 
-        yield comment_item
+    Args:
+        story_posting_count (int): Total amount of comments
+
+    Returns:
+        int: Total pages of comments
+    """
+
+    def parse_postings(self, response, posting_story_id, posting_page_number):
+        self.logger.info('posting reponse %s', response.url)
+        posting_item_loader = ItemLoader(item=PostingItem(), response=response)
+        posting_item_loader.add_value(
+            'posting_story_id', posting_story_id)
+        posting_item_loader.add_value(
+            'posting_page_number', posting_page_number)
+        posting_item_loader.add_xpath(
+            'posting_content', '//div[@id="postinglist"]')
+        posting_item = posting_item_loader.load_item()
+        return posting_item
 
         # page = response.url.split('/')[-1]
         # filename = f'{page}.html'
@@ -120,3 +173,27 @@ class DerStandardCrawler(SitemapSpider):
         # filename = f'{page}.html'
         # with open('data/' + self.name + '/' + filename, 'wb') as f:
         #     f.write(response.body)
+
+
+def calculate_story_posting_pages(story_posting_count):
+    """Calculates the total pages of comments to parse with each page containing 25 comments.
+
+    Args:
+        story_posting_count (int): Total amount of comments
+
+    Returns:
+        int: Total pages of comments
+    """
+    return int(-(-story_posting_count // 25))
+
+
+# def create_story_posting_urls(story_comment_pages):
+#     """Creates a list of urls to fetch all pages of comments
+
+#     Args:
+#         story_comment_pages (int): Total amount of pages
+
+#     Returns:
+#         list: List of comment pages urls
+#     """
+#     for():
