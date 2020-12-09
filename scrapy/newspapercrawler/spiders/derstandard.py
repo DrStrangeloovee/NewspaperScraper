@@ -1,11 +1,9 @@
-from mycrawler.items import StoryItem, PostingItem
+from newspapercrawler.items import StoryItem, PostingItem
 import datetime
 from scrapy.spiders import SitemapSpider
 from scrapy.http import Request
 from scrapy.loader import ItemLoader
 from scrapy.loader.processors import MapCompose
-
-# from mycrawler.items import StoryItem
 
 
 class DerStandardCrawler(SitemapSpider):

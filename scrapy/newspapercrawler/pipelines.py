@@ -6,7 +6,7 @@
 # See: https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 
 
-from mycrawler.items import StoryItem, PostingItem
+from newspapercrawler.items import StoryItem, PostingItem
 import json
 from scrapy.exporters import JsonItemExporter
 from itemadapter import ItemAdapter
