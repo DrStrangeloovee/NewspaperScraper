@@ -1,7 +1,10 @@
-version: "3"
+version: "3.8"
 
 services:
-    crawler:
-        build: .
-        volumes:
-            - .:/usr/src/app
+  newspaperscraper:
+    image: newspaperscraper
+    build:
+      context: scrapy
+      dockerfile: ./Dockerfile
+    volumes:
+      - ./data:/app/data
