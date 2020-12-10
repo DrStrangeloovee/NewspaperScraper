@@ -74,7 +74,7 @@ class DerStandardCrawler(SitemapSpider):
         )
         story_item_loader.add_value("store_file", response.url.split("/")[-2] + ".html")
 
-        # TODO: maybe create a function for this
+        # TODO: use html storage extension for this
         story_page_id = story_item_loader.get_output_value("story_id")
         filename = f"{story_page_id}.html"
         with open("data/" + self.name + "/" + filename, "wb") as f:

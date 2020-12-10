@@ -3,7 +3,9 @@ newspaper-scraper.code-workspace
 .vscode/
 
 # Application specific
-data/
+data/items/*
+data/logs/*
+data/derstandard/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
