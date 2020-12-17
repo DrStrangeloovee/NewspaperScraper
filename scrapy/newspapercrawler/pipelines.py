@@ -40,8 +40,12 @@ class JsonWriterPipeline:
     #     return item
 
     def open_spider(self, spider):
-        self.story_items_file = open("data/items/story_items.jsonl", "w")
-        self.posting_items_file = open("data/items/posting_items.jsonl", "w")
+        self.story_items_file = open(
+            "data/storage/derstandard/items/story_items.jsonl", "w"
+        )
+        self.posting_items_file = open(
+            "data/storage/derstandard/items/posting_items.jsonl", "w"
+        )
 
     def close_spider(self, spider):
         self.story_items_file.close()
