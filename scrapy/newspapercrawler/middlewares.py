@@ -87,6 +87,18 @@ class NewspapercrawlerDownloaderMiddleware(object):
         # - return a Response object
         # - return a Request object
         # - or raise IgnoreRequest
+
+        # TODO: use html storage extension for this
+        # story_page_id = story_item_loader.get_output_value("story_id")
+        # filename = f"{story_page_id}.html"
+
+        # with open("data/" + self.name + "/" + filename, "wb") as f:
+        #     f.write(response.body)
+        # self.logger.info("crawled page %s", response.url)
+
+        # if request.meta.get('google_cache',False):
+        #     return response.replace(url = response.url[len(self.google_cache):])
+
         return response
 
     def process_exception(self, request, exception, spider):
