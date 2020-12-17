@@ -5,7 +5,7 @@ newspaper-scraper.code-workspace
 # Application specific
 data/items/*
 data/logs/*
-data/derstandard/*
+data/storage/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
