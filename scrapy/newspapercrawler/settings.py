@@ -56,11 +56,8 @@ CONCURRENT_REQUESTS_PER_DOMAIN = 1
 # Enable or disable downloader middlewares
 # See https://doc.scrapy.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
-    "scrapy_html_storage.HtmlStorageMiddleware": 10,
-    #    'newspapercrawler.middlewares.NewspapercrawlerDownloaderMiddleware': 543,
+    # "scrapy_html_storage.HtmlStorageMiddleware": 10,
 }
-
-HTML_STORAGE = {"gzip_output": True, "save_html_on_status": [200, 202]}
 
 # Enable or disable extensions
 # See https://doc.scrapy.org/en/latest/topics/extensions.html
