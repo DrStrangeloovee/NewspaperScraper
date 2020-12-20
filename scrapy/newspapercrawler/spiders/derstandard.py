@@ -78,7 +78,7 @@ class DerStandardCrawler(SitemapSpider):
         story_item = story_item_loader.load_item()
 
         if story_item.get("story_posting_count"):
-            self.logger.info("found %s comments", story_item.get("story_posting_count"))
+            # self.logger.info("found %s comments", story_item.get("story_posting_count"))
 
             story_posting_pages = calculate_story_posting_pages(
                 story_item.get("story_posting_count")
@@ -108,31 +108,76 @@ class DerStandardCrawler(SitemapSpider):
                     },
                     callback=self.parse_postings,
                     cb_kwargs=dict(
-                        posting_story_id=story_item.get("store_file"),
+                        posting_story_id=story_item.get("story_id"),
                         posting_page_number=page_number,
                     ),
                 )
-        else:
-            self.logger.info("no comments found %s", response.url)
+        # else:
+        #     self.logger.info("no comments found %s", response.url)
 
         yield story_item
 
     def parse_postings(self, response, posting_story_id, posting_page_number):
-        self.logger.info("posting reponse %s", response.url)
         filename = f"{str(posting_page_number) + '_' + str(posting_story_id)}"
         with open("data/storage/" + self.name + "/posting/" + filename, "wb") as f:
             f.write(response.body)
 
         comments = response.xpath(
             '//div[@id="postinglist"]/div[contains(@class, "posting")]'
-        ).getall()
-        self.logger.info("comments %s", comments)
+        )
+        # comments = response.css('div.posting')
+        # self.logger.info("comments %s", comments)
         for comment in comments:
-            self.logger.info("comment %s", comment)
+            # self.logger.info("comment %s", comment)
+            # self.logger.info(
+            #     "comment text %s",
+            #     comment.xpath('.//div[@class="upost-text"]').extract(),
+            # )
             posting_item_loader = ItemLoader(item=PostingItem(), selector=comment)
             posting_item_loader.add_value("posting_story_id", posting_story_id)
             posting_item_loader.add_value("posting_page_number", posting_page_number)
-            posting_item_loader.add_xpath("posting_content", '//div[@id="postinglist"]')
+            # posting_item_loader.add_xpath(
+            #     "posting_community_name",
+            #     './/div[contains(@class, "posting")]/@data-communityname',
+            # )
+            posting_item_loader.add_xpath(
+                "posting_community_name",
+                ".//@data-communityname",
+            )
+            posting_item_loader.add_value("posting_url", response.url)
+            posting_item_loader.add_xpath(
+                "posting_id",
+                ".//@data-postingid",
+            )
+            posting_item_loader.add_xpath(
+                "posting_parent_posting_id",
+                ".//@data-parentpostingid",
+            )
+            posting_item_loader.add_xpath(
+                "posting_community_id",
+                ".//@data-communityidentityid",
+            )
+            posting_item_loader.add_xpath(
+                "posting_postdate", './/span[@class="js-timestamp"]/@data-livestamp'
+            )
+            posting_item_loader.add_xpath(
+                "posting_title", './/h4[contains(@class, "upost-title")]/text()'
+            )
+            posting_item_loader.add_xpath(
+                "posting_content", './/div[contains(@class, "upost-text")]/text()'
+            )
+            posting_item_loader.add_xpath(
+                "posting_ratings_positive",
+                './/span[@class="js-ratings-positive-count ratings-positive-count"]/text()',
+            )
+            posting_item_loader.add_xpath(
+                "posting_ratings_negative",
+                './/span[@class="js-ratings-negative-count ratings-negative-count"]/text()',
+            )
+            posting_item_loader.add_value(
+                "store_date", datetime.datetime.now().timestamp()
+            )
+
             posting_item = posting_item_loader.load_item()
             yield posting_item
 
