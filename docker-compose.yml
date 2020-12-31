@@ -8,3 +8,10 @@ services:
       dockerfile: ./Dockerfile
     volumes:
       - ./data:/app/data
+  database:
+    image: newspaperscraper_database
+    container_name: database
+    restart: unless-stopped
+    build:
+      context: psql
+      dockerfile: ./Dockerfile

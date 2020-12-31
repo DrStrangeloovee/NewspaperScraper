@@ -136,15 +136,25 @@ class DerStandardCrawler(SitemapSpider):
             posting_item_loader = ItemLoader(item=PostingItem(), selector=comment)
             posting_item_loader.add_value("posting_story_id", posting_story_id)
             posting_item_loader.add_value("posting_page_number", posting_page_number)
-            # posting_item_loader.add_xpath(
-            #     "posting_community_name",
-            #     './/div[contains(@class, "posting")]/@data-communityname',
-            # )
             posting_item_loader.add_xpath(
                 "posting_community_name",
                 ".//@data-communityname",
             )
             posting_item_loader.add_value("posting_url", response.url)
+            posting_item_loader.add_xpath(
+                "posting_organization_id",
+                './/span[@class="upost-organization-identity"]/text()',
+            )
+            # TODO:
+            # sometimes also has this class
+            # class="upost-verified-identity verified-identity-link"
+            posting_item_loader.add_xpath(
+                "posting_verified_id",
+                './/span[@class="upost-verified-identity"]/@title',
+            )
+            posting_item_loader.add_xpath(
+                "posting_supporter", './/span[@class="upost-supporter"]/@title'
+            )
             posting_item_loader.add_xpath(
                 "posting_id",
                 ".//@data-postingid",
@@ -158,11 +168,18 @@ class DerStandardCrawler(SitemapSpider):
                 ".//@data-communityidentityid",
             )
             posting_item_loader.add_xpath(
+                "posting_community_profile_url",
+                './/a[@class="upost-usercontainer js-usercontainer"]/@href',
+            )
+            posting_item_loader.add_xpath(
                 "posting_postdate", './/span[@class="js-timestamp"]/@data-livestamp'
             )
             posting_item_loader.add_xpath(
                 "posting_title", './/h4[contains(@class, "upost-title")]/text()'
             )
+            # TODO: parse content if it contains a link
+            # use and operator:
+            # "//category[@name='Sport' and ./author/text()='James Small']"
             posting_item_loader.add_xpath(
                 "posting_content", './/div[contains(@class, "upost-text")]/text()'
             )
@@ -170,9 +187,14 @@ class DerStandardCrawler(SitemapSpider):
                 "posting_ratings_positive",
                 './/span[@class="js-ratings-positive-count ratings-positive-count"]/text()',
             )
+            posting_item_loader.add_value("crawler_name", self.name)
+
             posting_item_loader.add_xpath(
                 "posting_ratings_negative",
                 './/span[@class="js-ratings-negative-count ratings-negative-count"]/text()',
+            )
+            posting_item_loader.add_xpath(
+                "posting_follower", './/span[@class="upost-follower"]/text()'
             )
             posting_item_loader.add_value(
                 "store_date", datetime.datetime.now().timestamp()

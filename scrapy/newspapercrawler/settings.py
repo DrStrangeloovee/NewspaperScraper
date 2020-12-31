@@ -69,7 +69,8 @@ DOWNLOADER_MIDDLEWARES = {
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 #    'newspapercrawler.pipelines.NewspapercrawlerPipeline': 300,
 ITEM_PIPELINES = {
-    "newspapercrawler.pipelines.JsonWriterPipeline": 0,
+    "newspapercrawler.pipelines.DatabasePipeline": 0,
+    "newspapercrawler.pipelines.JsonWriterPipeline": 100,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
@@ -98,3 +99,14 @@ ITEM_PIPELINES = {
 RETRY_ENABLED = False
 # Reduce download timeout
 DOWNLOAD_TIMEOUT = 15
+
+# Project specific settings
+## Database
+# "DB_URI": "postgres://gpvpodkyvacepp:4a57fe7594199f6fb0ce24fc5de8d9b691f1b8044aa587de7810a0385ff092b9@ec2-54-247-122-209.eu-west-1.compute.amazonaws.com:5432/d7jdu6jj3u96dm"
+DB_SETTINGS = {
+    "DB_URL": "ec2-54-247-122-209.eu-west-1.compute.amazonaws.com",
+    "DB_USER": "gpvpodkyvacepp",
+    "DB_PASSWORD": "4a57fe7594199f6fb0ce24fc5de8d9b691f1b8044aa587de7810a0385ff092b9",
+    "DB_NAME": "d7jdu6jj3u96dm",
+    "DB_PORT": "5432",
+}
