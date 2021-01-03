@@ -36,8 +36,6 @@ class DerStandardCrawler(SitemapSpider):
             "story_authors",
             'normalize-space(//div[@class="article-origins"]/text()[1])',
         )
-        # TODO: fetch authors from story_content
-        # story_item_loader.add_xpath('story_authors_short', )
         story_item_loader.add_xpath(
             "story_posting_count",
             'normalize-space(//p[@class="article-postingcount"]/button/text())',

@@ -38,6 +38,10 @@ class StoryItem(Item):
     def sanitize_posting_count(string_data):
         return re.sub("\W", "", string_data)
 
+    # TODO
+    # def get_story_authors_short(string_story_content):
+    #     return
+
     # Story fields
     story_url = Field(output_processor=Compose(lambda s: str(s[0])))
     story_authors = Field(
@@ -45,9 +49,6 @@ class StoryItem(Item):
             split_story_authors, sanitize_story_authors, str.strip
         )
     )
-    # TODO: fetch authors from story_content
-    # possible regex --> <p>.*\(([^)]+)\)<\/p>
-    # story_authors_short = Field()
     story_posting_count = Field(
         input_processor=Compose(lambda s: s[0], sanitize_posting_count),
         output_processor=Compose(lambda s: int(s[0])),
@@ -66,6 +67,12 @@ class StoryItem(Item):
     story_subtitle = Field(output_processor=Compose(lambda s: str(s[0])))
     story_title = Field(output_processor=Compose(lambda s: str(s[0])))
     story_content = Field()
+    # TODO: fetch authors_short_names from story_content
+    # possible regex --> <p>.*\(([^)]+)\)<\/p>
+    story_authors_short = Field(
+        input_processor=Compose(lambda s: s[0], get_story_authors_short),
+        output_processor=Compose(lambda s: str(s[0])),
+    )
     story_id = Field(output_processor=Compose(lambda s: int(s[0])))
     # story_id = to_int
     # Crawler metadata
