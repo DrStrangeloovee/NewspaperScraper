@@ -110,3 +110,7 @@ DB_SETTINGS = {
     "DB_NAME": "d7jdu6jj3u96dm",
     "DB_PORT": "5432",
 }
+
+# Log settings
+LOG_FORMAT = ' %(asctime)s %(levelname)8s\t%(message)s'
+LOG_DATEFORMAT = '%Y-%m-%dT%H:%M:%S%z'

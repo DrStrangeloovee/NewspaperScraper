@@ -69,10 +69,10 @@ class StoryItem(Item):
     story_content = Field()
     # TODO: fetch authors_short_names from story_content
     # possible regex --> <p>.*\(([^)]+)\)<\/p>
-    story_authors_short = Field(
-        input_processor=Compose(lambda s: s[0], get_story_authors_short),
-        output_processor=Compose(lambda s: str(s[0])),
-    )
+    # story_authors_short = Field(
+    #     input_processor=Compose(lambda s: s[0], get_story_authors_short),
+    #     output_processor=Compose(lambda s: str(s[0])),
+    # )
     story_id = Field(output_processor=Compose(lambda s: int(s[0])))
     # story_id = to_int
     # Crawler metadata
