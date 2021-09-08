@@ -1,6 +1,10 @@
 # NewspaperScraper
 Newspaper scraping and datamining in python
 
+## Run it via docker-compose
+```bash
+docker-compose up --build --remove-orphans
+```
 
 ## Fetching comments manually
 ```bash
@@ -8,7 +12,7 @@ curl 'https://apps.derstandard.at/forum/1/2000121360370' -H 'User-Agent: Mozilla
 ```
 
 ## Dependencies
-Scrapy==2.4.1
-chompjs==1.0.16
+Scrapy==2.5.0
+chompjs==1.1.4
 itemloaders==1.0.4
-scrapy-pagestorage==0.3.1
+psycopg2-binary==2.9.1
